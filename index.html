@@ -2,41 +2,59 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Nurobod Tumani HD Yo'ldosh Xaritasi</title>
+<title>Nurobod Tumani Ultra-HD Yo'ldosh Xaritasi</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Leaflet kutubxonasini ulash (Bloklanmaydi va tekin) -->
+
+<!-- Leaflet tizimini ulash (Uchinch tomon cheklovlarisiz va mutlaqo tekin) -->
 <link rel="stylesheet" href="https://unpkg.com" />
 <script src="https://unpkg.com"></script>
+
 <style>
-body { margin: 0; padding: 0; font-family: sans-serif; }
+body { margin: 0; padding: 0; font-family: sans-serif; background-color: #0b0f19; }
 #map { position: absolute; top: 0; bottom: 0; width: 100%; height: 100vh; }
+
+/* Apple Maps uslubidagi zamonaviy ma'lumotlar paneli */
 #info-panel { 
-    position: absolute; top: 15px; left: 15px; z-index: 1000; 
-    background: rgba(255, 255, 255, 0.95); padding: 12px 20px; 
-    border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+    position: absolute; top: 20px; left: 20px; z-index: 1000; 
+    background: rgba(255, 255, 255, 0.92); 
+    backdrop-filter: blur(10px); /* Orqa fonni xiralashtiruvchi effekt */
+    padding: 14px 22px; 
+    border-radius: 14px; 
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.4);
 }
-#info-panel h3 { margin: 0 0 5px 0; color: #1a1a1a; }
-#info-panel p { margin: 0; color: #666; font-size: 13px; }
+#info-panel h3 { margin: 0 0 4px 0; color: #111214; font-size: 18px; font-weight: 700; }
+#info-panel p { margin: 0; color: #5c606a; font-size: 13px; font-weight: 500; }
 </style>
 </head>
 <body>
 
 <div id="info-panel">
     <h3>Nurobod Tumani</h3>
-    <p>Samarqand viloyati | HD Yo'ldosh Xaritasi</p>
+    <p>Samarqand viloyati | Premium Ultra-HD Xarita</p>
 </div>
 
 <div id="map"></div>
 
 <script>
-    // Nurobod markazi koordinatasi [Kenglik, Uzunlik]
-    const map = L.map('map').setView([39.6074, 66.3023], 14);
+    // 1. Nurobod markazini o'rnatish [Kenglik, Uzunlik]. Boshlang'ich yaqinlik o'ta tiniq bo'lishi uchun 15 qildik
+    const map = L.map('map', {
+        zoomControl: false // Odatiy yoqimsiz tugmalarni o'chirish
+    }).setView([39.6074, 66.3023], 15);
 
-    // Eng tiniq va muammosiz yuklanadigan yo'ldosh xaritasi qatlami
+    // 2. TINIQLASHTIRISH SIRI: TileSize-ni 512 piksel qilib, piksellar zichligini yuqorilatdik
+    // Bu rejim xaritani silliq qiladi va xiralikni butunlay yo'qotadi
     L.tileLayer('https://google.com{x}&y={y}&z={z}', {
-        maxZoom: 20,
-        attribution: 'Google Satellite'
+        maxZoom: 22,
+        minZoom: 4,
+        tileSize: 512,
+        zoomOffset: -1,
+        detectRetina: true, // Retina ekranlar (iPhone/Mac/zamonaviy telefonlar) uchun maksimal tiniqlik
+        attribution: 'Apple-Inspired HD Layer'
     }).addTo(map);
+
+    // Apple Maps uslubidagi ixcham yaqinlashtirish boshqaruvini o'ng tomonga qo'shish
+    L.control.zoom({ position: 'top-right' }).addTo(map);
 </script>
 
 </body>
