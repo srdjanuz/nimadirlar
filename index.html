@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Nurobod Tumani HD Sun'iy Yo'ldosh Xaritasi</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<!-- Mapbox GL JS kutubxonalarini ulash -->
+<link href="https://mapbox.com" rel="stylesheet">
+<script src="https://mapbox.com"></script>
+<style>
+body { margin: 0; padding: 0; font-family: sans-serif; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+#info-panel { 
+    position: absolute; 
+    top: 15px; 
+    left: 15px; 
+    z-index: 1; 
+    background: rgba(255, 255, 255, 0.95); 
+    padding: 12px 20px; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+}
+#info-panel h3 { margin: 0 0 5px 0; color: #1a1a1a; }
+#info-panel p { margin: 0; color: #666; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- Xarita ustidagi ma'lumot paneli -->
+<div id="info-panel">
+    <h3>Nurobod Tumani</h3>
+    <p>Samarqand viloyati | HD Yo'ldosh Xaritasi</p>
+</div>
+
+<div id="map"></div>
+
+<script>
+	// Siz taqdim etgan va tekshirilgan Mapbox Token
+	mapboxgl.accessToken = 'pk.eyJ1IjoidXpjb2luZXIiLCJhIjoiY211NWVuY3ZlMGEzdDJ5c2hzeXV5Z252bSJ9.rPfC-eypWXZZgJxCVoMauw';
+    
+    const map = new mapboxgl.Map({
+        container: 'map',
+        // Mapbox serverlaridagi eng tiniq, yo'llar yozilgan original sun'iy yo'ldosh rejimi
+        style: 'mapbox://styles/mapbox/satellite-streets-v12', 
+        center: [66.3023, 39.6074], // Nurobod markazi koordinatasi
+        zoom: 14, // Uylar va ko'chalar aniq ko'rinadigan boshlang'ich yaqinlik
+        minZoom: 2, 
+        maxZoom: 22 
+    });
+
+    // O'ng tomonga yaqinlashtirish va kompas tugmalarini qo'shish
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+</script>
+
+</body>
+</html>
