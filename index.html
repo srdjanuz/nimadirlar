@@ -1,60 +1,329 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
-<meta charset="utf-8">
-<title>Nurobod Tumani Ultra-HD Yo'ldosh Xaritasi</title>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Leaflet tizimini ulash (Uchinch tomon cheklovlarisiz va mutlaqo tekin) -->
-<link rel="stylesheet" href="https://unpkg.com" />
-<script src="https://unpkg.com"></script>
-
+<title>Nurobod tumani — Xarita</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺️</text></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&display=swap">
 <style>
-body { margin: 0; padding: 0; font-family: sans-serif; background-color: #0b0f19; }
-#map { position: absolute; top: 0; bottom: 0; width: 100%; height: 100vh; }
-
-/* Apple Maps uslubidagi zamonaviy ma'lumotlar paneli */
-#info-panel { 
-    position: absolute; top: 20px; left: 20px; z-index: 1000; 
-    background: rgba(255, 255, 255, 0.92); 
-    backdrop-filter: blur(10px); /* Orqa fonni xiralashtiruvchi effekt */
-    padding: 14px 22px; 
-    border-radius: 14px; 
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-    border: 1px solid rgba(255,255,255,0.4);
-}
-#info-panel h3 { margin: 0 0 4px 0; color: #111214; font-size: 18px; font-weight: 700; }
-#info-panel p { margin: 0; color: #5c606a; font-size: 13px; font-weight: 500; }
+  :root{
+    --bg: #f7f5ef;
+    --panel: #ffffff;
+    --ink: #22261f;
+    --ink-soft: #5b5f52;
+    --line: #ddd8c8;
+    --olive: #5c6b45;
+    --olive-deep: #37402a;
+    --sand: #e9e3d0;
+    --accent: #a8562e;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    display:flex;
+    flex-direction:column;
+  }
+  header{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    padding:22px 28px 18px;
+    border-bottom:1px solid var(--line);
+    background:var(--panel);
+  }
+  header .crumb{
+    font-size:13px;
+    color:var(--ink-soft);
+    letter-spacing:.02em;
+  }
+  header h1{
+    font-family:'Newsreader',serif;
+    font-weight:600;
+    font-size:26px;
+    margin:0;
+    color:var(--olive-deep);
+  }
+  header .sep{
+    color:var(--line);
+  }
+  .layout{
+    flex:1;
+    display:flex;
+    min-height:0;
+  }
+  aside{
+    width:320px;
+    min-width:320px;
+    background:var(--panel);
+    border-right:1px solid var(--line);
+    overflow-y:auto;
+    padding:20px 0 40px;
+  }
+  .aside-section{
+    padding:0 22px 20px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:18px;
+  }
+  .aside-section:last-child{border-bottom:none;}
+  .aside-label{
+    font-size:11px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin-bottom:8px;
+  }
+  .stat-row{
+    display:flex;
+    justify-content:space-between;
+    padding:5px 0;
+    font-size:14px;
+    border-bottom:1px dashed var(--line);
+  }
+  .stat-row:last-child{border-bottom:none;}
+  .stat-row span:first-child{color:var(--ink-soft);}
+  .stat-row span:last-child{font-weight:500;}
+  .place-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .place-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 22px;
+    cursor:pointer;
+    font-size:14.5px;
+    border-left:3px solid transparent;
+    transition:background .15s, border-color .15s;
+  }
+  .place-item:hover{background:var(--sand);}
+  .place-item.active{
+    background:var(--sand);
+    border-left-color:var(--olive);
+    font-weight:600;
+  }
+  .place-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--olive);
+    flex-shrink:0;
+  }
+  .place-item .kind{
+    margin-left:auto;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .neighbors{
+    font-size:13.5px;
+    line-height:1.7;
+    color:var(--ink-soft);
+  }
+  .neighbors b{color:var(--ink);}
+  main{
+    flex:1;
+    position:relative;
+    min-width:0;
+  }
+  #map{
+    width:100%;
+    height:100%;
+    background:#0e1410;
+  }
+  #map::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    box-shadow:inset 0 0 90px rgba(0,0,0,.28);
+    z-index:600;
+  }
+  .basemap-toggle{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    overflow:hidden;
+    display:flex;
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+  }
+  .basemap-toggle button{
+    border:none;
+    background:transparent;
+    padding:9px 13px;
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .basemap-toggle button.active{
+    background:var(--olive);
+    color:#fff;
+  }
+  .leaflet-popup-content-wrapper{
+    border-radius:8px;
+    font-family:'Inter',sans-serif;
+  }
+  .leaflet-popup-content h3{
+    font-family:'Newsreader',serif;
+    margin:0 0 4px;
+    font-size:16px;
+    color:var(--olive-deep);
+  }
+  .leaflet-popup-content p{
+    margin:0;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  @media (max-width: 780px){
+    .layout{flex-direction:column;}
+    aside{width:100%;min-width:0;max-height:38vh;border-right:none;border-bottom:1px solid var(--line);}
+  }
 </style>
 </head>
 <body>
 
-<div id="info-panel">
-    <h3>Nurobod Tumani</h3>
-    <p>Samarqand viloyati | Premium Ultra-HD Xarita</p>
+<header>
+  <h1>Nurobod tumani</h1>
+  <span class="sep">/</span>
+  <span class="crumb">Samarqand viloyati &nbsp;·&nbsp; Oʻzbekiston</span>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="aside-section">
+      <div class="aside-label">Tuman haqida</div>
+      <div class="stat-row"><span>Markazi</span><span>Nurobod shahri</span></div>
+      <div class="stat-row"><span>Tashkil topgan</span><span>1975-yil, 26-noyabr</span></div>
+      <div class="stat-row"><span>Maydoni</span><span>4 860 km²</span></div>
+      <div class="stat-row"><span>Aholisi</span><span>≈152 700 kishi</span></div>
+      <div class="stat-row"><span>Aholi zichligi</span><span>≈31 kishi/km²</span></div>
+    </div>
+
+    <div class="aside-section">
+      <div class="aside-label">Aholi punktlari</div>
+      <ul class="place-list" id="placeList"></ul>
+    </div>
+
+    <div class="aside-section">
+      <div class="aside-label">Qoʻshni hududlar</div>
+      <div class="neighbors">
+        <b>Shimoldan</b> — Kattaqoʻrgʻon, Narpay, Paxtachi tumanlari<br>
+        <b>Gʻarbdan</b> — Navoiy viloyati<br>
+        <b>Sharqdan</b> — Samarqand, Pastdargʻom tumanlari<br>
+        <b>Janubdan</b> — Qashqadaryo viloyati
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div id="map"></div>
+  </main>
 </div>
 
-<div id="map"></div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
-    // 1. Nurobod markazini o'rnatish [Kenglik, Uzunlik]. Boshlang'ich yaqinlik o'ta tiniq bo'lishi uchun 15 qildik
-    const map = L.map('map', {
-        zoomControl: false // Odatiy yoqimsiz tugmalarni o'chirish
-    }).setView([39.6074, 66.3023], 15);
+  const places = [
+    { name: "Nurobod", kind: "Shahar (markaz)", lat: 39.60861, lng: 66.28667 },
+    { name: "Nurbuloq", kind: "Shaharcha", lat: 39.7180, lng: 66.1740 },
+    { name: "Jom", kind: "QFY", lat: 39.5340, lng: 66.1000 },
+    { name: "Jarquduq", kind: "QFY", lat: 39.4620, lng: 65.9800 },
+    { name: "Tim", kind: "QFY", lat: 39.4210, lng: 66.3400 },
+    { name: "Sazogʻon", kind: "QFY", lat: 39.5620, lng: 66.4400 },
+    { name: "Ulus", kind: "QFY", lat: 39.6720, lng: 66.4100 },
+    { name: "Tutli", kind: "QFY", lat: 39.5000, lng: 66.2200 }
+  ];
 
-    // 2. TINIQLASHTIRISH SIRI: TileSize-ni 512 piksel qilib, piksellar zichligini yuqorilatdik
-    // Bu rejim xaritani silliq qiladi va xiralikni butunlay yo'qotadi
-    L.tileLayer('https://google.com{x}&y={y}&z={z}', {
-        maxZoom: 22,
-        minZoom: 4,
-        tileSize: 512,
-        zoomOffset: -1,
-        detectRetina: true, // Retina ekranlar (iPhone/Mac/zamonaviy telefonlar) uchun maksimal tiniqlik
-        attribution: 'Apple-Inspired HD Layer'
-    }).addTo(map);
+  const map = L.map('map', { zoomControl: true }).setView([39.60, 66.20], 10);
 
-    // Apple Maps uslubidagi ixcham yaqinlashtirish boshqaruvini o'ng tomonga qo'shish
-    L.control.zoom({ position: 'top-right' }).addTo(map);
+  // Haqiqiy yuqori aniqlikdagi sun'iy yo'ldosh tasviri — Mapbox Satellite Streets
+  const MAPBOX_TOKEN = 'pk.eyJ1IjoidXpjb2luZXIiLCJhIjoiY211NWVuY3ZlMGEzdDJ5c2hzeXV5Z252bSJ9.rPfC-eypWXZZgJxCVoMauw';
+
+  const mapboxLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/{z}/{x}/{y}{r}?access_token=' + MAPBOX_TOKEN, {
+    attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    tileSize: 512,
+    zoomOffset: -1,
+    maxZoom: 22,
+    detectRetina: true
+  });
+
+  // 2026-yilgi eng so'nggi, aniq sanali sun'iy yo'ldosh tasviri — Sentinel-2, Copernicus Data Space
+  const sentinelLayer = L.tileLayer.wms('https://sh.dataspace.copernicus.eu/ogc/wms/88a47d3e-0fc1-4af5-ade3-04e09c637cb9', {
+    layers: 'TRUE-COLOR',
+    format: 'image/jpeg',
+    version: '1.3.0',
+    transparent: false,
+    time: '2026-01-01/2026-09-17',
+    maxZoom: 16,
+    attribution: 'Sentinel-2 (2026) &copy; Copernicus Sentinel data, via Sentinel Hub'
+  });
+
+  sentinelLayer.addTo(map);
+
+  const basemapToggle = L.control({ position: 'topright' });
+  basemapToggle.onAdd = function () {
+    const div = L.DomUtil.create('div', 'basemap-toggle');
+    div.innerHTML = `
+      <button id="btn2026" class="active">2026 (sana aniq)</button>
+      <button id="btnHD">Yuqori aniqlik</button>
+    `;
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+  };
+  basemapToggle.addTo(map);
+
+  document.getElementById('btn2026').onclick = (e) => {
+    map.removeLayer(mapboxLayer); map.addLayer(sentinelLayer);
+    e.target.classList.add('active');
+    document.getElementById('btnHD').classList.remove('active');
+  };
+  document.getElementById('btnHD').onclick = (e) => {
+    map.removeLayer(sentinelLayer); map.addLayer(mapboxLayer);
+    e.target.classList.add('active');
+    document.getElementById('btn2026').classList.remove('active');
+  };
+
+  const markerIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:14px;height:14px;border-radius:50%;background:#5c6b45;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);"></div>',
+    iconSize: [14,14],
+    iconAnchor: [7,7]
+  });
+  const capitalIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:18px;height:18px;border-radius:50%;background:#a8562e;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);"></div>',
+    iconSize: [18,18],
+    iconAnchor: [9,9]
+  });
+
+  const markers = {};
+  const listEl = document.getElementById('placeList');
+
+  places.forEach((p, i) => {
+    const icon = p.kind.includes('markaz') ? capitalIcon : markerIcon;
+    const marker = L.marker([p.lat, p.lng], { icon }).addTo(map);
+    marker.bindPopup(`<h3>${p.name}</h3><p>${p.kind} — Nurobod tumani</p>`);
+    markers[i] = marker;
+
+    const li = document.createElement('li');
+    li.className = 'place-item';
+    li.innerHTML = `<span class="place-dot"></span>${p.name}<span class="kind">${p.kind}</span>`;
+    li.onclick = () => {
+      map.flyTo([p.lat, p.lng], 12.5, { duration: 0.8 });
+      marker.openPopup();
+      document.querySelectorAll('.place-item').forEach(el => el.classList.remove('active'));
+      li.classList.add('active');
+    };
+    listEl.appendChild(li);
+  });
+
+  const bounds = L.latLngBounds(places.map(p => [p.lat, p.lng]));
+  map.fitBounds(bounds.pad(0.35));
 </script>
 
 </body>
